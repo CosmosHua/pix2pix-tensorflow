@@ -540,6 +540,9 @@ def main():
     tf.set_random_seed(a.seed)
     np.random.seed(a.seed)
     random.seed(a.seed)
+    
+    config = tf.ConfigProto()
+    config.gpu_options.allow_growth = True
 
     if not os.path.exists(a.output_dir):
         os.makedirs(a.output_dir)
@@ -611,7 +614,7 @@ def main():
         restore_saver = tf.train.Saver()
         export_saver = tf.train.Saver()
 
-        with tf.Session() as sess:
+        with tf.Session(config=config) as sess:
             sess.run(init_op)
             print("loading model from checkpoint")
             checkpoint = tf.train.latest_checkpoint(a.checkpoint)
@@ -709,7 +712,7 @@ def main():
 
     logdir = a.output_dir if (a.trace_freq > 0 or a.summary_freq > 0) else None
     sv = tf.train.Supervisor(logdir=logdir, save_summaries_secs=0, saver=None)
-    with sv.managed_session() as sess:
+    with sv.managed_session(config=config) as sess:
         print("parameter_count =", sess.run(parameter_count))
 
         if a.checkpoint is not None:
