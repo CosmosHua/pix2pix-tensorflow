@@ -541,8 +541,9 @@ def main():
     np.random.seed(a.seed)
     random.seed(a.seed)
     
-    config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
+    config = tf.ConfigProto(device_count={"GPU":1}, allow_soft_placement=True)
+    #config.gpu_options.per_process_gpu_memory_fraction = 0.1 # gpu_memory ratio
+    config.gpu_options.allow_growth = True # dynamicly apply gpu_memory
 
     if not os.path.exists(a.output_dir):
         os.makedirs(a.output_dir)
@@ -803,4 +804,11 @@ def main():
                     break
 
 
-main()
+if __name__ == '__main__':
+    main()
+
+
+################################################################################
+#python ../tools/process.py --input_dir=HRFaceA --b_dir=HRFaceB --operation=combine --output_dir=train
+#nohup python ../pix2pix.py --mode=train --output_dir=model --max_epochs=10 --input_dir=train --which_direction=AtoB --display_freq=100 >log &
+#python ../pix2pix.py --mode=test --output_dir=result --input_dir=test --checkpoint=model
